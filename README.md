@@ -49,8 +49,7 @@ docker compose up --build
 | Email | Role | Password |
 | --- | --- | --- |
 | `consultant@timetrack.dev` | Consultant (Felipe Urueta) | `Demo123!` |
-| `priya@timetrack.dev` | Consultant (Priya Sharma) | `Demo123!` |
-| `manager@timetrack.dev` | Manager (Laura Bennett) | `Demo123!` |
+| `manager@timetrack.dev` | Manager (Dummy Manager) | `Demo123!` |
 
 ## Architecture
 
