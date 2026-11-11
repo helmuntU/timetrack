@@ -1,0 +1,193 @@
+@use 'tokens' as *;
+
+.week-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.week-nav {
+  display: inline-flex;
+
+  .btn {
+    border-radius: 0;
+    margin-left: -1px;
+  }
+
+  .btn:first-child {
+    border-radius: $radius-sm 0 0 $radius-sm;
+    margin-left: 0;
+  }
+
+  .btn:last-child {
+    border-radius: 0 $radius-sm $radius-sm 0;
+  }
+}
+
+.week-panel {
+  padding: 1.5rem;
+}
+
+.week-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.week-total {
+  font-size: 2.6rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0 0 0.25rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.legend__label {
+  color: $ink-muted;
+}
+
+// The swatch repeats the bar fill (incl. the draft hatch) so the legend reads the chart.
+.legend__swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 2px;
+}
+
+.legend__swatch--approved {
+  background: $approved;
+}
+
+.legend__swatch--submitted {
+  background: $submitted;
+}
+
+.legend__swatch--rejected {
+  background: $rejected;
+}
+
+.legend__swatch--draft {
+  background: repeating-linear-gradient(
+    -45deg,
+    $draft,
+    $draft 2px,
+    lighten($draft, 12%) 2px,
+    lighten($draft, 12%) 4px
+  );
+}
+
+app-week-strip.is-loading {
+  opacity: 0.55;
+  transition: opacity 150ms ease;
+}
+
+.week-panel__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: $radius-sm;
+  background: $tide-050;
+  color: $tide-900;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+
+  h2 {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.day-detail,
+.projects {
+  padding: 1.25rem 1.5rem;
+}
+
+.day-entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid $rule;
+}
+
+.day-entry__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.day-entry__project {
+  font-weight: 600;
+}
+
+.day-entry__description {
+  color: $ink-muted;
+}
+
+.day-entry__reason {
+  margin-top: 0.3rem;
+  padding-left: 0.6rem;
+  border-left: 2px solid $rejected;
+  color: #9b2222;
+  font-size: 0.9rem;
+}
+
+.day-entry__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.day-entry__edit {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 860px) {
+  .week-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .week-panel {
+    padding: 1rem;
+  }
+
+  .week-total {
+    font-size: 2.1rem;
+  }
+}

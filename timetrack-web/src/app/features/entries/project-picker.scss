@@ -1,0 +1,73 @@
+@use 'tokens' as *;
+
+:host {
+  display: block;
+}
+
+.picker {
+  position: relative;
+}
+
+.picker__clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: $ink-muted;
+  font-size: 1.2rem;
+  line-height: 1;
+
+  &:hover {
+    background: $paper;
+    color: $ink;
+  }
+}
+
+.picker__list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 18rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: $surface;
+  border: 1px solid $rule-strong;
+  border-radius: $radius-sm;
+  box-shadow: 0 12px 28px rgba(28, 36, 51, 0.14);
+}
+
+.picker__option {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.picker__option--active {
+  background: $tide-050;
+}
+
+.picker__name {
+  font-weight: 550;
+}
+
+.picker__meta {
+  font-size: 0.82rem;
+  color: $ink-muted;
+}
+
+.picker__status {
+  padding: 0.6rem 0.65rem;
+  color: $ink-muted;
+  font-size: 0.9rem;
+}

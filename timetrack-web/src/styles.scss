@@ -1,0 +1,235 @@
+@use 'tokens' as t;
+
+// Self-hosted variable font (no external CDN: works offline and with strict CSP).
+@import '@fontsource-variable/instrument-sans/index.css';
+
+// ---- Bootstrap, themed with our tokens (only the parts the app uses) ----
+$primary: t.$tide-700;
+$danger: t.$rejected;
+$success: t.$approved;
+$warning: t.$submitted;
+$body-bg: t.$paper;
+$body-color: t.$ink;
+$secondary-color: t.$ink-muted;
+$border-color: t.$rule;
+$font-family-sans-serif: t.$font-family;
+$border-radius: t.$radius-sm;
+$border-radius-lg: t.$radius;
+$input-bg: t.$surface;
+$input-border-color: t.$rule-strong;
+$form-select-bg: t.$surface;
+$input-focus-border-color: t.$tide-500;
+$input-btn-focus-color: rgba(26, 127, 147, 0.25);
+$link-color: t.$tide-700;
+$headings-font-weight: 650;
+$enable-shadows: false;
+$enable-gradients: false;
+
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/tables';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/transitions';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/spinners';
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities/api';
+
+// ---- Base ----
+html {
+  font-size: 15px;
+}
+
+body {
+  font-feature-settings: 'tnum' 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.015em;
+}
+
+:focus-visible {
+  outline: 2px solid t.$tide-500;
+  outline-offset: 2px;
+}
+
+.btn {
+  font-weight: 550;
+}
+
+.btn-primary {
+  --bs-btn-hover-bg: #{t.$tide-900};
+  --bs-btn-hover-border-color: #{t.$tide-900};
+}
+
+.btn-quiet {
+  --bs-btn-color: #{t.$ink};
+  --bs-btn-bg: #{t.$surface};
+  --bs-btn-border-color: #{t.$rule-strong};
+  --bs-btn-hover-bg: #{t.$paper};
+  --bs-btn-hover-border-color: #{t.$ink-muted};
+  --bs-btn-active-bg: #{t.$rule};
+}
+
+.form-label {
+  font-weight: 550;
+  margin-bottom: 0.3rem;
+}
+
+.form-text {
+  color: t.$ink-muted;
+}
+
+// ---- Page header: title on the left, primary action on the right ----
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    font-size: 1.75rem;
+    margin: 0;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: t.$ink-muted;
+  }
+}
+
+.panel {
+  background: t.$surface;
+  border: 1px solid t.$rule;
+  border-radius: t.$radius;
+}
+
+.muted {
+  color: t.$ink-muted;
+}
+
+.empty-state {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: t.$ink-muted;
+
+  strong {
+    display: block;
+    color: t.$ink;
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
+  }
+}
+
+// ---- Status badge (shared component) ----
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0.55rem 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 550;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+.status--draft {
+  background: t.$draft-100;
+  color: #4f586a;
+}
+
+.status--submitted {
+  background: t.$amber-100;
+  color: t.$amber-900;
+}
+
+.status--approved {
+  background: t.$approved-100;
+  color: #1f5f3f;
+}
+
+.status--rejected {
+  background: t.$rejected-100;
+  color: #9b2222;
+}
+
+// ---- Toasts ----
+.toasts {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(24rem, calc(100vw - 2rem));
+}
+
+.toast-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: t.$radius-sm;
+  background: t.$ink;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(28, 36, 51, 0.25);
+  animation: toast-in 180ms ease-out;
+}
+
+.toast-note--error {
+  background: #8f1f1f;
+}
+
+.toast-note__close {
+  margin-left: auto;
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

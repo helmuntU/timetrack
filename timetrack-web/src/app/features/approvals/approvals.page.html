@@ -1,0 +1,135 @@
+<header class="page-header">
+  <div>
+    <h1>Approvals</h1>
+    <p>
+      @if (pending.isLoading() && pending.value().length === 0) {
+        Loading the queue…
+      } @else if (pending.value().length === 0) {
+        Nothing waiting for you.
+      } @else {
+        {{ pending.value().length }}
+        {{ pending.value().length === 1 ? 'entry' : 'entries' }} waiting,
+        {{ totalHours() | hours }} in total
+      }
+    </p>
+  </div>
+  <button
+    type="button"
+    class="btn btn-quiet"
+    (click)="pending.reload()"
+    [disabled]="pending.isLoading()"
+  >
+    Refresh
+  </button>
+</header>
+
+@if (pending.error()) {
+  <div class="alert alert-danger" role="alert">
+    The approval queue couldn't be loaded.
+    <button type="button" class="btn btn-link p-0 align-baseline" (click)="pending.reload()">
+      Try again
+    </button>
+  </div>
+}
+
+@for (queue of queues(); track queue.userId) {
+  <section class="panel queue" [attr.aria-label]="'Entries from ' + queue.fullName">
+    <header class="queue__head">
+      <div>
+        <h2>{{ queue.fullName }}</h2>
+        <span class="muted"
+          >{{ queue.entries.length }} {{ queue.entries.length === 1 ? 'entry' : 'entries' }},
+          {{ queue.totalHours | hours }}</span
+        >
+      </div>
+      @if (queue.entries.length > 1) {
+        <button type="button" class="btn btn-sm btn-quiet" (click)="approveAll(queue)">
+          Approve all {{ queue.entries.length }}
+        </button>
+      }
+    </header>
+
+    <ul class="queue__list">
+      @for (entry of queue.entries; track entry.id) {
+        <li class="review">
+          <div class="review__when">
+            <strong>{{ formatDate(entry.workDate) }}</strong>
+            <span>{{ entry.hours | hours }}</span>
+          </div>
+          <div class="review__what">
+            <span class="review__project"
+              >{{ entry.projectName }} <span class="muted">{{ entry.projectCode }}</span></span
+            >
+            <span class="review__description">{{ entry.description }}</span>
+
+            @if (rejectingId() === entry.id) {
+              <div class="review__reject">
+                <label class="form-label" [for]="'reason-' + entry.id"
+                  >What should {{ entry.userFullName.split(' ')[0] }} change?</label
+                >
+                <textarea
+                  class="form-control"
+                  rows="2"
+                  [id]="'reason-' + entry.id"
+                  [formControl]="reason"
+                  [class.is-invalid]="reason.touched && reason.invalid"
+                ></textarea>
+                @if (reason.touched && reason.hasError('required')) {
+                  <div class="invalid-feedback">Add a note so they know what to fix.</div>
+                } @else if (reason.hasError('maxlength')) {
+                  <div class="invalid-feedback">
+                    Keep the note under {{ maxReasonLength }} characters.
+                  </div>
+                }
+                <div class="review__reject-actions">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger"
+                    (click)="confirmReject(entry)"
+                  >
+                    Send back
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-quiet"
+                    (click)="rejectingId.set(null)"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (rejectingId() !== entry.id) {
+            <div class="review__actions">
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                [disabled]="isBusy(entry.id)"
+                (click)="approve(entry)"
+              >
+                Approve
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-quiet"
+                [disabled]="isBusy(entry.id)"
+                (click)="startReject(entry)"
+              >
+                Ask for changes
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+} @empty {
+  @if (!pending.isLoading() && !pending.error()) {
+    <div class="panel empty-state">
+      <strong>You're all caught up</strong>
+      New submissions from your team will appear here.
+    </div>
+  }
+}

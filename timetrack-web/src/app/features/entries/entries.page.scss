@@ -1,0 +1,155 @@
+@use 'tokens' as *;
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.filters__field {
+  flex: 1 1 10rem;
+  max-width: 14rem;
+}
+
+.filters__reset {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.filters__error {
+  flex-basis: 100%;
+  margin: 0;
+  color: $rejected;
+  font-size: 0.9rem;
+}
+
+.entries {
+  display: grid;
+  gap: 1.5rem;
+  transition: opacity 150ms ease;
+}
+
+.entries--loading {
+  opacity: 0.55;
+}
+
+.day-group__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 0.25rem 0.5rem;
+  border-bottom: 2px solid $ink;
+
+  h2 {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  span {
+    font-weight: 650;
+  }
+}
+
+.entry-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: $surface;
+  border: 1px solid $rule;
+  border-top: 0;
+  border-radius: 0 0 $radius $radius;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr) 4.5rem 9.5rem 13rem;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+
+  & + & {
+    border-top: 1px solid $rule;
+  }
+}
+
+.entry__project {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.entry__project-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry__project-code {
+  font-size: 0.8rem;
+  color: $ink-muted;
+}
+
+.entry__description {
+  color: $ink-muted;
+}
+
+.entry__reason {
+  display: block;
+  margin-top: 0.3rem;
+  padding-left: 0.6rem;
+  border-left: 2px solid $rejected;
+  color: #9b2222;
+  font-size: 0.88rem;
+}
+
+.entry__hours {
+  text-align: right;
+  font-weight: 650;
+}
+
+.entry__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.entry__confirm {
+  font-size: 0.85rem;
+  margin-right: 0.25rem;
+}
+
+@media (max-width: 980px) {
+  .entry {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'project hours'
+      'description description'
+      'status actions';
+    gap: 0.5rem 1rem;
+  }
+
+  .entry__project {
+    grid-area: project;
+  }
+
+  .entry__description {
+    grid-area: description;
+  }
+
+  .entry__hours {
+    grid-area: hours;
+  }
+
+  .entry__status {
+    grid-area: status;
+  }
+
+  .entry__actions {
+    grid-area: actions;
+  }
+}

@@ -1,0 +1,156 @@
+@use 'tokens' as *;
+
+:host {
+  display: block;
+}
+
+.strip {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 0.5rem;
+}
+
+.strip__scale {
+  position: relative;
+  height: 14rem;
+  margin-top: 0.25rem;
+
+  span {
+    position: absolute;
+    right: 0;
+    transform: translateY(50%);
+    font-size: 0.72rem;
+    color: $ink-muted;
+  }
+}
+
+.strip__days {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: clamp(0.35rem, 1.5vw, 1rem);
+}
+
+// The 8-hour target, drawn inside each column above the bars.
+.day__target {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed rgba(28, 36, 51, 0.45);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  padding: 0.25rem 0 0.4rem;
+  background: none;
+  border: 0;
+  border-radius: $radius-sm;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover .day__column {
+    background: darken($paper, 3%);
+  }
+}
+
+.day__column {
+  position: relative;
+  height: 14rem;
+  display: flex;
+  flex-direction: column-reverse;
+  background: $paper;
+  border-radius: 6px 6px 2px 2px;
+  overflow: hidden;
+  transition: background 120ms ease;
+}
+
+.day__segment {
+  display: block;
+  width: 100%;
+  transition: height 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  & + & {
+    border-bottom: 2px solid $surface;
+  }
+}
+
+.day__segment--draft {
+  background: repeating-linear-gradient(
+    -45deg,
+    $draft,
+    $draft 3px,
+    lighten($draft, 12%) 3px,
+    lighten($draft, 12%) 6px
+  );
+}
+
+.day__segment--submitted {
+  background: $submitted;
+}
+
+.day__segment--approved {
+  background: $approved;
+}
+
+.day__segment--rejected {
+  background: $rejected;
+}
+
+.day__total {
+  font-weight: 650;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.day__label {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: $ink-muted;
+}
+
+.day--today .day__label {
+  color: $tide-700;
+  font-weight: 650;
+}
+
+.day--future {
+  .day__column {
+    background: transparent;
+    outline: 1px dashed $rule-strong;
+    outline-offset: -1px;
+  }
+
+  .day__total {
+    color: $ink-muted;
+    font-weight: 400;
+  }
+}
+
+.day--selected .day__column {
+  box-shadow: 0 0 0 2px $tide-700;
+}
+
+@media (max-width: 560px) {
+  .strip__scale,
+  .day__column {
+    height: 10rem;
+  }
+
+  .day__label {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .day__total {
+    font-size: 0.75rem;
+  }
+}

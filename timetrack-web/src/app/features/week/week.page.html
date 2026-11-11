@@ -1,0 +1,143 @@
+<header class="page-header">
+  <div>
+    <h1>My week</h1>
+    <p>{{ weekLabel() }}</p>
+  </div>
+
+  <div class="week-actions">
+    <div class="week-nav" role="group" aria-label="Change week">
+      <button type="button" class="btn btn-quiet" (click)="moveWeek(-1)" aria-label="Previous week">
+        ‹
+      </button>
+      <button
+        type="button"
+        class="btn btn-quiet"
+        (click)="goToCurrentWeek()"
+        [disabled]="isCurrentWeek()"
+      >
+        This week
+      </button>
+      <button type="button" class="btn btn-quiet" (click)="moveWeek(1)" aria-label="Next week">
+        ›
+      </button>
+    </div>
+    <a
+      class="btn btn-primary"
+      routerLink="/entries/new"
+      [queryParams]="{ date: selectedDay() <= today ? selectedDay() : today }"
+    >
+      Log hours
+    </a>
+  </div>
+</header>
+
+<section class="panel week-panel" aria-labelledby="week-hours">
+  <div class="week-panel__head">
+    <div>
+      <h2 id="week-hours" class="week-total">
+        @if (summary.value(); as weekly) {
+          {{ weekly.totalHours | hours }}
+        } @else {
+          &nbsp;
+        }
+      </h2>
+      <span class="muted">logged this week</span>
+    </div>
+
+    <ul class="legend" aria-label="Hours by status">
+      @for (item of legend(); track item.status) {
+        <li class="legend__item">
+          <span
+            [class]="'legend__swatch legend__swatch--' + item.status.toLowerCase()"
+            aria-hidden="true"
+          ></span>
+          <span class="legend__label">{{ item.label }}</span>
+          <strong>{{ item.hours | hours }}</strong>
+        </li>
+      }
+    </ul>
+  </div>
+
+  @if (entries.error()) {
+    <div class="alert alert-danger mt-3 mb-0" role="alert">
+      We couldn't load this week.
+      <button type="button" class="btn btn-link p-0 align-baseline" (click)="entries.reload()">
+        Try again
+      </button>
+    </div>
+  } @else {
+    <app-week-strip
+      [class.is-loading]="entries.isLoading()"
+      [days]="days()"
+      [selected]="selectedDay()"
+      (daySelected)="selectedDay.set($event)"
+    />
+  }
+
+  @if (draftCount() > 0) {
+    <div class="week-panel__footer">
+      <span>
+        {{ draftCount() }} {{ draftCount() === 1 ? 'draft hasn’t' : 'drafts haven’t' }} been sent
+        for approval yet.
+      </span>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        [disabled]="submitting()"
+        (click)="submitWeek()"
+      >
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+        }
+        Send {{ draftCount() === 1 ? 'draft' : 'all drafts' }} for approval
+      </button>
+    </div>
+  }
+</section>
+
+<div class="week-grid">
+  <section class="panel day-detail" aria-labelledby="day-title">
+    <h2 id="day-title">{{ selectedDayLabel() }}</h2>
+
+    @for (entry of selectedEntries(); track entry.id) {
+      <article class="day-entry">
+        <div class="day-entry__main">
+          <span class="day-entry__project">{{ entry.projectName }}</span>
+          <span class="day-entry__description">{{ entry.description }}</span>
+          @if (entry.rejectionReason) {
+            <span class="day-entry__reason">{{ entry.rejectionReason }}</span>
+          }
+        </div>
+        <div class="day-entry__side">
+          <strong>{{ entry.hours | hours }}</strong>
+          <app-status-badge [status]="entry.status" />
+          @if (entry.status === 'Draft' || entry.status === 'Rejected') {
+            <a class="day-entry__edit" [routerLink]="['/entries', entry.id, 'edit']">Edit</a>
+          }
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-state">
+        @if (selectedDay() > today) {
+          <strong>This day hasn’t happened yet</strong>
+          Hours can only be logged for today or earlier.
+        } @else {
+          <strong>Nothing logged for this day</strong>
+          <a routerLink="/entries/new" [queryParams]="{ date: selectedDay() }"
+            >Log hours for this day</a
+          >
+        }
+      </div>
+    }
+  </section>
+
+  <section class="panel projects" aria-labelledby="projects-title">
+    <h2 id="projects-title">By project</h2>
+
+    @defer (on viewport) {
+      <app-project-breakdown [projects]="summary.value()?.hoursByProject ?? []" />
+    } @placeholder {
+      <p class="muted mb-0">Loading projects…</p>
+    }
+  </section>
+</div>

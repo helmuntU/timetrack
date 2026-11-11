@@ -1,0 +1,139 @@
+<header class="page-header">
+  <div>
+    <h1>Time entries</h1>
+    <p>
+      @if (entries.isLoading()) {
+        Loading…
+      } @else {
+        {{ entries.value().length }} {{ entries.value().length === 1 ? 'entry' : 'entries' }},
+        {{ totalHours() | hours }} in total
+      }
+    </p>
+  </div>
+  <a class="btn btn-primary" routerLink="/entries/new">Log hours</a>
+</header>
+
+<form class="panel filters" [formGroup]="filters" aria-label="Filter entries">
+  <div class="filters__field">
+    <label class="form-label" for="from">From</label>
+    <input
+      id="from"
+      type="date"
+      class="form-control"
+      formControlName="from"
+      [class.is-invalid]="invalidRange()"
+    />
+  </div>
+  <div class="filters__field">
+    <label class="form-label" for="to">To</label>
+    <input
+      id="to"
+      type="date"
+      class="form-control"
+      formControlName="to"
+      [class.is-invalid]="invalidRange()"
+    />
+  </div>
+  <div class="filters__field">
+    <label class="form-label" for="status">Status</label>
+    <select id="status" class="form-select" formControlName="status">
+      <option value="">All statuses</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ status }}</option>
+      }
+    </select>
+  </div>
+  <button type="button" class="btn btn-link filters__reset" (click)="clearFilters()">
+    Reset filters
+  </button>
+
+  @if (invalidRange()) {
+    <p class="filters__error" role="alert">The start date must be on or before the end date.</p>
+  }
+</form>
+
+@if (entries.error()) {
+  <div class="alert alert-danger" role="alert">
+    We couldn't load your entries.
+    <button type="button" class="btn btn-link p-0 align-baseline" (click)="entries.reload()">
+      Try again
+    </button>
+  </div>
+}
+
+<div class="entries" [class.entries--loading]="entries.isLoading()">
+  @for (group of groups(); track group.date) {
+    <section class="day-group" [attr.aria-label]="group.label">
+      <header class="day-group__head">
+        <h2>{{ group.label }}</h2>
+        <span>{{ group.total | hours }}</span>
+      </header>
+
+      <ul class="entry-list">
+        @for (entry of group.entries; track entry.id) {
+          <li class="entry">
+            <div class="entry__project">
+              <span class="entry__project-name">{{ entry.projectName }}</span>
+              <span class="entry__project-code">{{ entry.projectCode }}</span>
+            </div>
+            <div class="entry__description">
+              {{ entry.description }}
+              @if (entry.rejectionReason) {
+                <span class="entry__reason">Manager note: {{ entry.rejectionReason }}</span>
+              }
+            </div>
+            <strong class="entry__hours">{{ entry.hours | hours }}</strong>
+            <span class="entry__status"><app-status-badge [status]="entry.status" /></span>
+
+            <div class="entry__actions">
+              @if (confirmDeleteId() === entry.id) {
+                <span class="entry__confirm">Delete this entry?</span>
+                <button type="button" class="btn btn-sm btn-danger" (click)="delete(entry)">
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-quiet"
+                  (click)="confirmDeleteId.set(null)"
+                >
+                  Keep
+                </button>
+              } @else {
+                @if (entry.status === 'Draft' || entry.status === 'Rejected') {
+                  <a class="btn btn-sm btn-quiet" [routerLink]="['/entries', entry.id, 'edit']"
+                    >Edit</a
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="busyId() === entry.id"
+                    (click)="submit(entry)"
+                  >
+                    {{ entry.status === 'Rejected' ? 'Resubmit' : 'Submit' }}
+                  </button>
+                }
+                @if (entry.status === 'Draft') {
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-link text-danger"
+                    [disabled]="busyId() === entry.id"
+                    (click)="confirmDeleteId.set(entry.id)"
+                  >
+                    Delete
+                  </button>
+                }
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  } @empty {
+    @if (!entries.isLoading() && !entries.error() && !invalidRange()) {
+      <div class="panel empty-state">
+        <strong>No entries match these filters</strong>
+        Widen the date range, or <a routerLink="/entries/new">log hours</a> for a day you worked.
+      </div>
+    }
+  }
+</div>

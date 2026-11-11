@@ -1,0 +1,194 @@
+@use 'tokens' as *;
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+
+  &::before {
+    content: '‹ ';
+  }
+}
+
+.form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.entry-form {
+  padding: 1.5rem;
+}
+
+.field-error {
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  color: $rejected;
+}
+
+.hours-input {
+  display: flex;
+
+  .form-control {
+    text-align: center;
+    border-radius: 0;
+    margin: 0 -1px;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+  }
+
+  .btn {
+    width: 2.75rem;
+    font-size: 1.1rem;
+    padding: 0;
+  }
+
+  .btn:first-child {
+    border-radius: $radius-sm 0 0 $radius-sm;
+  }
+
+  .btn:last-child {
+    border-radius: 0 $radius-sm $radius-sm 0;
+  }
+}
+
+.quick-hours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.quick-hours__option {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid $rule-strong;
+  border-radius: 999px;
+  background: $surface;
+  color: $ink;
+  font-size: 0.82rem;
+
+  &:hover:not(:disabled) {
+    border-color: $tide-500;
+  }
+}
+
+.quick-hours__option--active {
+  background: $tide-700;
+  border-color: $tide-700;
+  color: #fff;
+}
+
+.manager-note {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid $rejected;
+  background: $rejected-100;
+  border-radius: 0 $radius-sm $radius-sm 0;
+
+  p {
+    margin: 0.2rem 0 0;
+  }
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid $rule;
+}
+
+.day-meter {
+  padding: 1.25rem;
+  position: sticky;
+  top: 1rem;
+
+  h2 {
+    font-size: 1rem;
+    margin-bottom: 0.9rem;
+  }
+}
+
+.day-meter__bar {
+  position: relative;
+  display: flex;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: $paper;
+  overflow: hidden;
+}
+
+.day-meter__other {
+  background: $ink-muted;
+}
+
+.day-meter__this {
+  background: $tide-500;
+  transition: width 200ms ease;
+}
+
+.day-meter__this--over {
+  background: $rejected;
+}
+
+.day-meter__target {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: $ink;
+  opacity: 0.4;
+}
+
+.day-meter__facts {
+  margin: 1rem 0 0;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+
+    & + div {
+      border-top: 1px solid $rule;
+    }
+  }
+
+  dt {
+    font-weight: 400;
+    color: $ink-muted;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.day-meter__warning {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: $rejected;
+}
+
+@media (max-width: 860px) {
+  .form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .day-meter {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .entry-form {
+    padding: 1rem;
+  }
+}

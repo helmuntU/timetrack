@@ -1,0 +1,40 @@
+<div class="strip" role="group" [attr.aria-label]="'Hours per day. ' + description()">
+  <div class="strip__scale" aria-hidden="true">
+    <span style="bottom: 100%">12h</span>
+    <span [style.bottom.%]="targetPercent">8h</span>
+    <span style="bottom: 0">0</span>
+  </div>
+
+  <div class="strip__days">
+    @for (day of days(); track day.date) {
+      <button
+        type="button"
+        class="day"
+        [class.day--selected]="day.date === selected()"
+        [class.day--today]="day.isToday"
+        [class.day--future]="day.isFuture"
+        [attr.aria-pressed]="day.date === selected()"
+        [attr.aria-label]="
+          day.weekday + ' ' + day.dayOfMonth + ', ' + (day.total | hours) + ' logged'
+        "
+        (click)="daySelected.emit(day.date)"
+      >
+        <span class="day__column">
+          <span class="day__target" [style.bottom.%]="targetPercent" aria-hidden="true"></span>
+          @for (segment of day.segments; track segment.status) {
+            <span
+              class="day__segment"
+              [class]="'day__segment day__segment--' + segment.status.toLowerCase()"
+              [style.height.%]="percent(segment.hours)"
+            ></span>
+          }
+        </span>
+        <span class="day__total">{{ day.total > 0 ? (day.total | hours) : '–' }}</span>
+        <span class="day__label">
+          <span class="day__weekday">{{ day.weekday }}</span>
+          <span class="day__date">{{ day.dayOfMonth }}</span>
+        </span>
+      </button>
+    }
+  </div>
+</div>

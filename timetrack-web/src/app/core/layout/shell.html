@@ -1,0 +1,76 @@
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" routerLink="/week" aria-label="TimeTrack home">
+      <svg class="brand__mark" viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="2" y="14" width="4" height="12" rx="1" />
+        <rect x="8" y="9" width="4" height="17" rx="1" />
+        <rect x="14" y="4" width="4" height="22" rx="1" />
+        <rect x="20" y="11" width="4" height="15" rx="1" />
+      </svg>
+      <span>TimeTrack</span>
+    </a>
+
+    <button
+      type="button"
+      class="topbar__menu-button"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="primary-nav"
+      (click)="menuOpen.set(!menuOpen())"
+    >
+      Menu
+    </button>
+
+    <nav id="primary-nav" class="nav" [class.nav--open]="menuOpen()" aria-label="Primary">
+      <a
+        class="nav__link"
+        routerLink="/week"
+        routerLinkActive="nav__link--active"
+        ariaCurrentWhenActive="page"
+        >My week</a
+      >
+      <a
+        class="nav__link"
+        routerLink="/entries"
+        routerLinkActive="nav__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        >Time entries</a
+      >
+      @if (auth.isManager()) {
+        <a
+          class="nav__link"
+          routerLink="/approvals"
+          routerLinkActive="nav__link--active"
+          ariaCurrentWhenActive="page"
+        >
+          Approvals
+        </a>
+      }
+    </nav>
+
+    @if (auth.user(); as user) {
+      <div class="account">
+        <span class="account__avatar" aria-hidden="true">{{ initials(user.fullName) }}</span>
+        <span class="account__text">
+          <span class="account__name">{{ user.fullName }}</span>
+          <span class="account__role">{{ user.role }}</span>
+        </span>
+        <button type="button" class="btn btn-link account__signout" (click)="auth.logout()">
+          Sign out
+        </button>
+      </div>
+    }
+  </div>
+</header>
+
+@if (demoMode) {
+  <p class="demo-banner">
+    Demo mode: data is simulated in your browser and resets when you close the tab.
+  </p>
+}
+
+<main id="main" class="page" tabindex="-1">
+  <router-outlet />
+</main>

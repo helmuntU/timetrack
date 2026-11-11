@@ -1,0 +1,56 @@
+<div class="picker">
+  <input
+    #searchInput
+    type="text"
+    class="form-control"
+    role="combobox"
+    autocomplete="off"
+    placeholder="Search by client, project or code"
+    [id]="inputId()"
+    [class.is-invalid]="invalid()"
+    [value]="query()"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="listboxId()"
+    [attr.aria-activedescendant]="open() && activeIndex() >= 0 ? optionId(activeIndex()) : null"
+    aria-autocomplete="list"
+    (input)="onInput(searchInput.value)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    (keydown)="onKeydown($event)"
+  />
+
+  @if (selected() && !disabled()) {
+    <button type="button" class="picker__clear" aria-label="Clear project" (click)="clear()">
+      &times;
+    </button>
+  }
+
+  @if (open()) {
+    <ul class="picker__list" role="listbox" [id]="listboxId()">
+      @if (loading() && results().length === 0) {
+        <li class="picker__status">Searching projects…</li>
+      } @else if (failed()) {
+        <li class="picker__status">Projects couldn't be loaded. Keep typing to retry.</li>
+      } @else {
+        @for (project of results(); track project.id; let index = $index) {
+          <li
+            role="option"
+            class="picker__option"
+            [id]="optionId(index)"
+            [class.picker__option--active]="index === activeIndex()"
+            [attr.aria-selected]="index === activeIndex()"
+            (mousedown)="$event.preventDefault()"
+            (click)="select(project)"
+            (mouseenter)="activeIndex.set(index)"
+          >
+            <span class="picker__name">{{ project.name }}</span>
+            <span class="picker__meta">{{ project.clientName }} · {{ project.code }}</span>
+          </li>
+        } @empty {
+          <li class="picker__status">No active project matches “{{ query() }}”.</li>
+        }
+      }
+    </ul>
+  }
+</div>

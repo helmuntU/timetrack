@@ -1,0 +1,224 @@
+<header class="page-header">
+  <div>
+    <a class="back-link" routerLink="/entries">Time entries</a>
+    <h1>{{ isEdit() ? 'Edit entry' : 'Log hours' }}</h1>
+  </div>
+  @if (entry.value(); as current) {
+    <app-status-badge [status]="current.status" />
+  }
+</header>
+
+@if (entry.isLoading() && isEdit()) {
+  <p class="muted">Loading entry…</p>
+} @else if (entry.error()) {
+  <div class="alert alert-danger" role="alert">
+    This entry doesn't exist or you can't open it. <a routerLink="/entries">Back to your entries</a>
+  </div>
+} @else {
+  <div class="form-layout">
+    <form class="panel entry-form" [formGroup]="form" (ngSubmit)="save('save')" novalidate>
+      @if (!canEdit()) {
+        <div class="alert alert-info" role="status">
+          This entry is
+          {{ entry.value()?.status === 'Approved' ? 'approved' : 'waiting for approval' }}, so it
+          can no longer be changed.
+        </div>
+      }
+
+      @if (entry.value()?.rejectionReason; as reason) {
+        <div class="manager-note" role="note">
+          <strong>Your manager asked for changes</strong>
+          <p>{{ reason }}</p>
+        </div>
+      }
+
+      @if (conflict()) {
+        <div class="alert alert-warning" role="alert">
+          Someone changed this entry while you were editing it. Reload to see the latest version,
+          then apply your change again.
+          <button type="button" class="btn btn-sm btn-quiet ms-2" (click)="reload()">
+            Reload entry
+          </button>
+        </div>
+      }
+
+      @if (errorMessage(); as message) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
+
+      <div class="mb-4">
+        <label class="form-label" for="project">Project</label>
+        <app-project-picker
+          inputId="project"
+          formControlName="projectId"
+          [invalid]="showError('projectId')"
+        />
+        @if (showError('projectId')) {
+          <div class="field-error">Choose the project you worked on.</div>
+        }
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6">
+          <label class="form-label" for="workDate">Date</label>
+          <input
+            id="workDate"
+            type="date"
+            class="form-control"
+            formControlName="workDate"
+            [max]="today"
+            [class.is-invalid]="showError('workDate')"
+          />
+          @if (form.controls.workDate.hasError('futureDate')) {
+            <div class="field-error">You can't log hours for a future date.</div>
+          } @else if (showError('workDate')) {
+            <div class="field-error">Choose the day you worked.</div>
+          }
+        </div>
+
+        <div class="col-sm-6">
+          <label class="form-label" for="hours">Hours</label>
+          <div class="hours-input">
+            <button
+              type="button"
+              class="btn btn-quiet"
+              (click)="stepHours(-1)"
+              [disabled]="form.disabled"
+              aria-label="Remove 15 minutes"
+            >
+              −
+            </button>
+            <input
+              id="hours"
+              type="number"
+              class="form-control"
+              formControlName="hours"
+              inputmode="decimal"
+              [step]="rules.hoursIncrement"
+              [min]="rules.hoursIncrement"
+              [max]="rules.maxHoursPerEntry"
+              [class.is-invalid]="showError('hours')"
+              aria-describedby="hours-help"
+            />
+            <button
+              type="button"
+              class="btn btn-quiet"
+              (click)="stepHours(1)"
+              [disabled]="form.disabled"
+              aria-label="Add 15 minutes"
+            >
+              +
+            </button>
+          </div>
+          <div class="quick-hours" role="group" aria-label="Common durations">
+            @for (value of quickHours; track value) {
+              <button
+                type="button"
+                class="quick-hours__option"
+                [class.quick-hours__option--active]="form.controls.hours.value === value"
+                [disabled]="form.disabled"
+                (click)="setHours(value)"
+              >
+                {{ value | hours }}
+              </button>
+            }
+          </div>
+          @if (form.controls.hours.hasError('quarterHour')) {
+            <div class="field-error">Use 15-minute steps, like 1.25 or 7.5.</div>
+          } @else if (form.controls.hours.hasError('server')) {
+            <div class="field-error">{{ form.controls.hours.getError('server') }}</div>
+          } @else if (showError('hours')) {
+            <div class="field-error">
+              Enter between 15 minutes and {{ rules.maxHoursPerEntry }} hours per entry.
+            </div>
+          } @else {
+            <div id="hours-help" class="form-text">
+              Up to {{ rules.maxHoursPerEntry }} hours per entry, in 15-minute steps.
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between">
+          <label class="form-label" for="description">What did you work on?</label>
+          <span class="form-text" [class.text-danger]="charactersLeft() < 0" aria-live="polite"
+            >{{ charactersLeft() }} left</span
+          >
+        </div>
+        <textarea
+          id="description"
+          class="form-control"
+          rows="3"
+          formControlName="description"
+          placeholder="For example: Reviewed revenue controls with the client's finance team"
+          [class.is-invalid]="showError('description')"
+        ></textarea>
+        @if (form.controls.description.hasError('required') && showError('description')) {
+          <div class="field-error">Describe the work so your manager can approve it.</div>
+        } @else if (form.controls.description.hasError('maxlength')) {
+          <div class="field-error">Keep it under {{ rules.maxDescriptionLength }} characters.</div>
+        }
+      </div>
+
+      @if (canEdit()) {
+        <div class="form-actions">
+          <button type="submit" class="btn btn-quiet" [disabled]="saving() !== null">
+            @if (saving() === 'save') {
+              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+            }
+            Save draft
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="saving() !== null"
+            (click)="save('saveAndSubmit')"
+          >
+            @if (saving() === 'saveAndSubmit') {
+              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+            }
+            Save and send for approval
+          </button>
+          <a class="btn btn-link" routerLink="/entries">Cancel</a>
+        </div>
+      }
+    </form>
+
+    <aside class="panel day-meter" aria-live="polite">
+      <h2>That day</h2>
+      <div class="day-meter__bar" aria-hidden="true">
+        <span class="day-meter__other" [style.width.%]="otherPercent()"></span>
+        <span
+          class="day-meter__this"
+          [class.day-meter__this--over]="overDailyLimit()"
+          [style.width.%]="thisEntryPercent()"
+        ></span>
+        <span
+          class="day-meter__target"
+          [style.left.%]="(rules.targetHoursPerDay / rules.maxHoursPerDay) * 100"
+        ></span>
+      </div>
+      <dl class="day-meter__facts">
+        <div>
+          <dt>Already logged</dt>
+          <dd>{{ otherHoursThatDay() | hours }}</dd>
+        </div>
+        <div>
+          <dt>With this entry</dt>
+          <dd [class.text-danger]="overDailyLimit()">{{ dayTotal() | hours }}</dd>
+        </div>
+        <div>
+          <dt>Daily limit</dt>
+          <dd>{{ rules.maxHoursPerDay | hours }}</dd>
+        </div>
+      </dl>
+      @if (overDailyLimit()) {
+        <p class="day-meter__warning">
+          This would go over the {{ rules.maxHoursPerDay }}-hour daily limit. Reduce the hours or
+          pick another day.
+        </p>
+      }
+    </aside>
+  </div>
+}

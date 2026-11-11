@@ -1,0 +1,39 @@
+// Design tokens: one source for color, type and spacing decisions.
+// Cool paper + slate ink + one teal accent; status colors carry meaning, never decoration.
+
+$paper: #f5f7f9;
+$surface: #ffffff;
+$ink: #1c2433;
+$ink-muted: #5a6475;
+$rule: #dde3ea;
+$rule-strong: #c5ced9;
+
+$tide-050: #e8f3f5;
+$tide-100: #cfe6eb;
+$tide-300: #7cc1cf;
+$tide-500: #1a7f93;
+$tide-700: #0e5a6b;
+$tide-900: #093c47;
+
+// Status scale (same meaning everywhere: badges, week strip, totals).
+$draft: #8a94a6;
+$draft-100: #edf0f4;
+$submitted: #c98a12;
+$amber-100: #fbefd3;
+$amber-900: #6b4706;
+$approved: #2f855a;
+$approved-100: #dcf1e5;
+$rejected: #c53030;
+$rejected-100: #fbe1e1;
+
+$font-family:
+  'Instrument Sans Variable',
+  'Instrument Sans',
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  sans-serif;
+
+$radius-sm: 6px;
+$radius: 10px;
+$page-width: 1120px;
