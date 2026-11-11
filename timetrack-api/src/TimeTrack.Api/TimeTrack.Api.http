@@ -1,0 +1,63 @@
+### TimeTrack API — run these from Visual Studio, Rider or VS Code (REST Client extension).
+@baseUrl = http://localhost:5080/api/v1
+
+### 1. Login as consultant (copy the accessToken into @token below)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "consultant@timetrack.dev",
+  "password": "Demo123!"
+}
+
+###
+@token = {{login.response.body.accessToken}}
+
+### 2. Who am I
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### 3. Search projects (the Angular search box calls this)
+GET {{baseUrl}}/projects?search=azure&page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 4. My time entries
+GET {{baseUrl}}/time-entries
+Authorization: Bearer {{token}}
+
+### 5. Weekly dashboard
+GET {{baseUrl}}/dashboard/weekly-summary
+Authorization: Bearer {{token}}
+
+### 6. Business rule: more than 8 hours in one entry -> 400 / 422
+POST {{baseUrl}}/time-entries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "projectId": "00000000-0000-0000-0000-000000000000",
+  "workDate": "2026-11-09",
+  "hours": 9,
+  "description": "Too many hours"
+}
+
+### 7. Login as manager
+# @name managerLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@timetrack.dev",
+  "password": "Demo123!"
+}
+
+###
+@managerToken = {{managerLogin.response.body.accessToken}}
+
+### 8. Pending approvals (manager only; a consultant token gets 403)
+GET {{baseUrl}}/approvals/pending
+Authorization: Bearer {{managerToken}}
+
+### 9. Health check (anonymous)
+GET http://localhost:5080/health

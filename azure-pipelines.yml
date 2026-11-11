@@ -1,0 +1,82 @@
+# Azure DevOps CI: every pull request to main/develop builds and tests both apps in parallel.
+trigger:
+  branches:
+    include: [main, develop]
+
+pr:
+  branches:
+    include: [main, develop]
+
+variables:
+  buildConfiguration: Release
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Api
+        displayName: .NET API
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: UseDotNet@2
+            displayName: Install .NET SDK from global.json
+            inputs:
+              useGlobalJson: true
+              workingDirectory: timetrack-api
+
+          - script: dotnet restore TimeTrack.slnx
+            displayName: Restore
+            workingDirectory: timetrack-api
+
+          - script: dotnet build TimeTrack.slnx -c $(buildConfiguration) --no-restore
+            displayName: Build
+            workingDirectory: timetrack-api
+
+          - script: >
+              dotnet test TimeTrack.slnx -c $(buildConfiguration) --no-build
+              --logger trx --results-directory $(Agent.TempDirectory)/TestResults
+              --collect "XPlat Code Coverage"
+            displayName: Unit and integration tests
+            workingDirectory: timetrack-api
+
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: $(Agent.TempDirectory)/TestResults/**/*.trx
+
+          - task: PublishCodeCoverageResults@2
+            condition: succeededOrFailed()
+            inputs:
+              summaryFileLocation: $(Agent.TempDirectory)/TestResults/**/coverage.cobertura.xml
+
+          - script: dotnet publish src/TimeTrack.Api/TimeTrack.Api.csproj -c $(buildConfiguration) --no-build -o $(Build.ArtifactStagingDirectory)/api
+            displayName: Publish
+            workingDirectory: timetrack-api
+
+          - publish: $(Build.ArtifactStagingDirectory)/api
+            artifact: api
+
+      - job: Web
+        displayName: Angular app
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: 22.x
+
+          - script: npm ci
+            displayName: Install dependencies
+            workingDirectory: timetrack-web
+
+          - script: npm run test:ci
+            displayName: Unit tests (Vitest)
+            workingDirectory: timetrack-web
+
+          - script: npx ng build --configuration production
+            displayName: Production build
+            workingDirectory: timetrack-web
+
+          - publish: timetrack-web/dist/timetrack-web/browser
+            artifact: web

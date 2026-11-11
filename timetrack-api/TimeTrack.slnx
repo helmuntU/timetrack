@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TimeTrack.Domain/TimeTrack.Domain.csproj" />
+    <Project Path="src/TimeTrack.Application/TimeTrack.Application.csproj" />
+    <Project Path="src/TimeTrack.Infrastructure/TimeTrack.Infrastructure.csproj" />
+    <Project Path="src/TimeTrack.Api/TimeTrack.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TimeTrack.Domain.Tests/TimeTrack.Domain.Tests.csproj" />
+    <Project Path="tests/TimeTrack.Application.Tests/TimeTrack.Application.Tests.csproj" />
+    <Project Path="tests/TimeTrack.Api.IntegrationTests/TimeTrack.Api.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

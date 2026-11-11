@@ -1,0 +1,23 @@
+stateDiagram-v2
+  direction LR
+  state "Draft" as Draft
+  state "Awaiting approval" as Submitted
+  state "Approved" as Approved
+  state "Needs changes" as Rejected
+
+  [*] --> Draft: Log hours
+  Draft --> Draft: Edit
+  Draft --> [*]: Delete
+  Draft --> Submitted: Send for approval
+  Submitted --> Approved: Manager approves
+  Submitted --> Rejected: Manager asks for changes
+  Rejected --> Draft: Consultant edits
+  Rejected --> Submitted: Resubmit
+  Approved --> [*]
+
+  note right of Approved
+    Locked: can't be edited or deleted
+  end note
+  note left of Rejected
+    A note from the manager is required
+  end note

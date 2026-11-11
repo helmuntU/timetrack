@@ -1,0 +1,41 @@
+flowchart TD
+  open([Open TimeTrack]) --> guard{Valid session?}
+  guard -- No --> login[Sign in]
+  login --> creds{Email and password OK?}
+  creds -- "No: 401, or 429 after too many tries" --> login
+  creds -- Yes --> week
+  guard -- Yes --> week
+
+  subgraph everyone [Every user]
+    week[My week<br/>hours per day, by status] --> form[Log hours]
+    form --> project[Search project as you type]
+    project --> details[Date, hours, description<br/>checked as you type: 15-minute steps,<br/>max 8 h per entry, max 12 h per day]
+    details --> valid{Valid?}
+    valid -- No --> details
+    valid -- Yes --> save{Save how?}
+    save -- Save draft --> draft([Draft])
+    save -- Save and send --> submitted([Awaiting approval])
+    draft -- "Send all drafts" --> submitted
+    draft -- "Edit or delete" --> form
+  end
+
+  subgraph managers [Managers only]
+    queue[Approvals<br/>queue grouped by person] --> decide{Decision}
+    decide -- Approve --> approved([Approved, locked])
+    decide -- Ask for changes --> note[Write a note for the consultant]
+    note --> rejected([Needs changes])
+  end
+
+  week -. "Approvals tab" .-> queue
+  submitted --> queue
+  rejected -- "Consultant edits and resubmits" --> form
+  expired[[Session expires: any call returns 401]] -.-> login
+
+  classDef draftState fill:#6b7385,stroke:#6b7385,color:#ffffff
+  classDef submittedState fill:#b7790f,stroke:#b7790f,color:#ffffff
+  classDef approvedState fill:#2f855a,stroke:#2f855a,color:#ffffff
+  classDef rejectedState fill:#c53030,stroke:#c53030,color:#ffffff
+  class draft draftState
+  class submitted submittedState
+  class approved approvedState
+  class rejected rejectedState

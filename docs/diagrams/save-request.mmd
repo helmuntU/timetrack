@@ -1,0 +1,32 @@
+sequenceDiagram
+  autonumber
+  actor U as Consultant
+  participant A as Angular entry form
+  participant I as authInterceptor
+  participant P as API pipeline
+  participant S as TimeEntryService
+  participant D as TimeEntry (domain)
+  participant DB as EF Core and SQL Server
+
+  U->>A: Save and send for approval
+  Note right of A: Form validators: 15-minute steps, max 8 h, no future date
+  A->>I: POST /api/v1/time-entries
+  I->>P: Adds the Authorization: Bearer token
+  Note right of P: Rate limit, validate JWT, check authorization
+  P->>S: CreateAsync(request)
+  Note right of S: FluentValidation checks the request shape
+  S->>DB: Is the project active? Hours already logged that day?
+  DB-->>S: Project and daily total
+  S->>D: TimeEntry.Create(...) applies the business rules
+  D-->>S: New entry in Draft
+  S->>DB: SaveChanges
+  S-->>A: 201 Created with the entry
+  A->>I: POST /time-entries/{id}/submit, chained with switchMap
+  I->>P: Same token
+  P->>S: SubmitAsync(id)
+  S->>D: entry.Submit()
+  S->>DB: SaveChanges, checking the ConcurrencyStamp
+  S-->>A: 200 OK, status Awaiting approval
+  A-->>U: Toast: Hours saved and sent for approval
+
+  Note over P,D: Any exception goes to GlobalExceptionHandler and returns ProblemDetails: 400, 404, 409 or 422
